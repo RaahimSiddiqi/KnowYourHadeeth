@@ -29,6 +29,5 @@ vectordb = Chroma(
 vectordb.persist()
 
 for doc in tqdm(documents):
-  print(doc)
   vectordb.add_documents([doc])
 
