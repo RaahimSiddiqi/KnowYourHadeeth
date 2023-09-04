@@ -52,7 +52,7 @@ class SunnahSpider(scrapy.Spider):
             yield {
                 "narrator": narrator.get().lstrip("\n"),
                 "text": text.get().lstrip("\n"),
-                "author": ' '.join(author.get().split()[:-1].lstrip("\n")),
+                "author": ' '.join(author.get().split()[:-1]).lstrip("\n"),
                 "reference": reference.get().lstrip("\xa0:\xa0")
             }
 
