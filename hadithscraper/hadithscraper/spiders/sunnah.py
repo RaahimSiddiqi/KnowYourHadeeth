@@ -1,10 +1,12 @@
 import scrapy
-
+from scrapy.spiders import Rule
+from scrapy.linkextractors import LinkExtractor
 
 class SunnahSpider(scrapy.Spider):
     name = "sunnah"
     allowed_domains = ["sunnah.com"]
     start_urls = ["https://sunnah.com/"]
+    rules = [Rule(LinkExtractor(deny = ('/forty', '/bulugh', '/hisn')))]
 
     def parse(self, response):
         for author_collections in response.xpath("//div[@class='collection_title']/a/@href"):
