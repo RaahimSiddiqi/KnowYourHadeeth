@@ -22,39 +22,41 @@ class SunnahSpider(scrapy.Spider):
     def parse_collection(self, response):
         for hadith in response.xpath("//div[contains(@class,'actualHadithContainer')]"):
 
-            hadith_text = hadith.xpath(".//div[@class='english_hadith_full']")
+            try:
+                hadith_text = hadith.xpath(".//div[@class='english_hadith_full']")
 
-            if hadith_text.xpath("div[@class='hadith_narrated']/text()"):
-                narrator = hadith_text.xpath("div[@class='hadith_narrated']/text()")
-            elif hadith_text.xpath("div[@class='hadith_narrated']/p/text()"):
-                narrator = hadith_text.xpath("div[@class='hadith_narrated']/p/text()")
-            else:
-                return
+                if hadith_text.xpath("div[@class='hadith_narrated']/text()") and hadith_text.xpath("div[@class='hadith_narrated']/text()").get().strip():
+                    narrator = hadith_text.xpath("div[@class='hadith_narrated']/text()").get()
+                elif hadith_text.xpath("div[@class='hadith_narrated']/text()") and hadith_text.xpath("div[@class='hadith_narrated']/p/text()").get().strip():
+                    narrator = hadith_text.xpath("div[@class='hadith_narrated']/p/text()").get()
+                else:
+                    narrator = ""
 
-            if hadith_text.xpath("div[@class='text_details']/text()"):
-                text = hadith_text.xpath("div[@class='text_details']/text()")
-            elif hadith_text.xpath("div[@class='text_details']/p/text()"):
-                text = hadith_text.xpath("div[@class='text_details']/p/text()")
-            else:
-                print("No hadith text found")
-                return
+                if hadith_text.xpath("div[@class='text_details']//text()") and hadith_text.xpath("div[@class='text_details']//text()").get().strip():
+                    text = hadith_text.xpath("div[@class='text_details']//text()")
+                elif hadith_text.xpath("div[@class='text_details']//p//text()") and hadith_text.xpath("div[@class='text_details']//p//text()").get().strip():
+                    text = hadith_text.xpath("div[@class='text_details']//p//text()")
+                else:
+                    print("No hadith text found")
+                    continue
 
-            hadith_reference = hadith.xpath(".//table[@class='hadith_reference']")
+                hadith_reference = hadith.xpath(".//table[@class='hadith_reference']")
 
-            author = hadith_reference.xpath("tr[1]/td[2]/a/text()")
-            reference = hadith_reference.xpath("tr[2]/td[2]/span/text()")
-            if reference == [] and hadith_reference.xpath("tr[2]/td[2]/text()"):
-                reference = hadith_reference.xpath("tr[2]/td[2]/text()")
+                author = hadith_reference.xpath("tr[1]/td[2]/a/text()")
+                reference = hadith_reference.xpath("tr[2]/td[2]/span/text()")
+                if reference == [] and hadith_reference.xpath("tr[2]/td[2]/text()") and hadith_reference.xpath("tr[2]/td[2]/text()").get().strip():
+                    reference = hadith_reference.xpath("tr[2]/td[2]/text()")
 
-            if not (author or reference):
-                print("No hadith reference found")
-                print(hadith_reference, author, reference)
-                return
+                if not ((author and author.get().strip()) or (reference and reference.get().strip())):
+                    print("No hadith reference found")
+                    continue
+            except:
+                continue
             
             yield {
-                "narrator": narrator.get().lstrip("\n"),
-                "text": text.get().lstrip("\n"),
-                "author": ' '.join(author.get().split()[:-1]).lstrip("\n"),
+                "narrator": narrator,
+                "text": text.get(),
+                "author": ' '.join(author.get().split()[:-1]),
                 "reference": reference.get().lstrip("\xa0:\xa0")
             }
 
