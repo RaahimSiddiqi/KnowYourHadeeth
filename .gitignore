@@ -2,3 +2,4 @@
 /__pycache__/
 /chroma_store_scraper/
 /chroma_store_datafiles/
+/chroma_store_scraper_msmarco_bert_base_dot_v5/
